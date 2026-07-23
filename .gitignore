@@ -43,3 +43,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local agent tooling (Claude Code / Vercel-installed skills), not app code
+/.agents
+/.claude
+skills-lock.json

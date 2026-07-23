@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { signIn } from "@/lib/auth";
+import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
   return (
@@ -7,6 +9,21 @@ export default function LoginPage() {
       <p className="text-sm text-black/60 dark:text-white/60">
         Sign in to comment and like posts.
       </p>
+
+      <LoginForm />
+
+      <p className="text-sm text-black/60 dark:text-white/60">
+        No account yet?{" "}
+        <Link href="/signup" className="underline">
+          Sign up
+        </Link>
+      </p>
+
+      <div className="my-2 flex items-center gap-3 text-xs text-black/40 dark:text-white/40">
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+        or
+        <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+      </div>
 
       <form
         action={async () => {
@@ -45,7 +62,7 @@ export default function LoginPage() {
           className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
         />
         <button className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90 dark:bg-white dark:text-black">
-          Continue with email
+          Continue with email link
         </button>
       </form>
     </div>

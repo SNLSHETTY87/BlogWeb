@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated Pagefind search assets (built by `npm run build`, not source)
+    "public/pagefind/**",
   ]),
 ]);
 
