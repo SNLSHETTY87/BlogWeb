@@ -1,77 +1,85 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import { desc, eq, sql } from "drizzle-orm";
 import readingTime from "reading-time";
+import { db } from "@/lib/db/client";
+import { posts } from "@/lib/db/schema";
 
-const POSTS_DIR = path.join(process.cwd(), "content", "posts");
-
-export type PostFrontmatter = {
+export type PostMeta = {
+  id: string;
+  slug: string;
   title: string;
   date: string;
   excerpt: string;
   tags: string[];
-  cover?: string;
-};
-
-export type PostMeta = PostFrontmatter & {
-  slug: string;
+  cover: string | null;
   readingTime: string;
+  published: boolean;
 };
 
 export type Post = PostMeta & {
   content: string;
+  backgroundAudioUrl: string | null;
 };
 
-function slugFromFilename(filename: string) {
-  return filename.replace(/\.mdx?$/, "");
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, " ");
 }
 
-export function getAllSlugs(): string[] {
-  if (!fs.existsSync(POSTS_DIR)) return [];
-  return fs
-    .readdirSync(POSTS_DIR)
-    .filter((file) => file.endsWith(".mdx") || file.endsWith(".md"))
-    .map(slugFromFilename);
-}
-
-export function getPostBySlug(slug: string): Post | null {
-  const fullPathMdx = path.join(POSTS_DIR, `${slug}.mdx`);
-  const fullPathMd = path.join(POSTS_DIR, `${slug}.md`);
-  const fullPath = fs.existsSync(fullPathMdx) ? fullPathMdx : fullPathMd;
-  if (!fs.existsSync(fullPath)) return null;
-
-  const raw = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(raw);
-
+function toMeta(row: typeof posts.$inferSelect): PostMeta {
   return {
-    slug,
-    title: data.title,
-    date: data.date,
-    excerpt: data.excerpt ?? "",
-    tags: data.tags ?? [],
-    cover: data.cover,
-    readingTime: readingTime(content).text,
-    content,
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    date: row.createdAt.toISOString(),
+    excerpt: row.excerpt,
+    tags: row.tags,
+    cover: row.coverImage,
+    readingTime: readingTime(stripHtml(row.contentHtml)).text,
+    published: row.published,
   };
 }
 
-export function getAllPosts(): PostMeta[] {
-  return getAllSlugs()
-    .map((slug) => getPostBySlug(slug))
-    .filter((post): post is Post => post !== null)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructuring to drop `content` from the meta-only list
-    .map(({ content, ...meta }) => meta)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+export async function getAllPosts(): Promise<PostMeta[]> {
+  const rows = await db
+    .select()
+    .from(posts)
+    .where(eq(posts.published, true))
+    .orderBy(desc(posts.createdAt));
+  return rows.map(toMeta);
 }
 
-export function getAllTags(): string[] {
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const [row] = await db.select().from(posts).where(eq(posts.slug, slug));
+  if (!row) return null;
+  return { ...toMeta(row), content: row.contentHtml, backgroundAudioUrl: row.backgroundAudioUrl };
+}
+
+export async function getAllTags(): Promise<string[]> {
+  const rows = await getAllPosts();
   const tags = new Set<string>();
-  for (const post of getAllPosts()) {
+  for (const post of rows) {
     for (const tag of post.tags) tags.add(tag);
   }
   return Array.from(tags).sort();
 }
 
-export function getPostsByTag(tag: string): PostMeta[] {
-  return getAllPosts().filter((post) => post.tags.includes(tag));
+export async function getPostsByTag(tag: string): Promise<PostMeta[]> {
+  const rows = await db
+    .select()
+    .from(posts)
+    .where(sql`${posts.published} = true and ${tag} = any(${posts.tags})`)
+    .orderBy(desc(posts.createdAt));
+  return rows.map(toMeta);
+}
+
+// --- Admin-only helpers (include unpublished posts) ---
+
+export async function getAllPostsForAdmin(): Promise<PostMeta[]> {
+  const rows = await db.select().from(posts).orderBy(desc(posts.createdAt));
+  return rows.map(toMeta);
+}
+
+export async function getPostById(id: string): Promise<Post | null> {
+  const [row] = await db.select().from(posts).where(eq(posts.id, id));
+  if (!row) return null;
+  return { ...toMeta(row), content: row.contentHtml, backgroundAudioUrl: row.backgroundAudioUrl };
 }

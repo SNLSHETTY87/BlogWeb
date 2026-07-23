@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllTags, getPostsByTag } from "@/lib/posts";
 
-export function generateStaticParams() {
-  return getAllTags().map((tag) => ({ tag }));
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const tags = await getAllTags();
+  return tags.map((tag) => ({ tag }));
 }
 
 export default async function TagPage({
@@ -12,7 +15,7 @@ export default async function TagPage({
   params: Promise<{ tag: string }>;
 }) {
   const { tag } = await params;
-  const posts = getPostsByTag(tag);
+  const posts = await getPostsByTag(tag);
   if (posts.length === 0) notFound();
 
   return (
@@ -24,7 +27,9 @@ export default async function TagPage({
             <Link href={`/blog/${post.slug}`} className="text-lg font-medium hover:underline">
               {post.title}
             </Link>
-            <p className="text-sm text-black/50 dark:text-white/50">{post.date}</p>
+            <p className="text-sm text-black/50 dark:text-white/50">
+              {new Date(post.date).toLocaleDateString()}
+            </p>
           </li>
         ))}
       </ul>

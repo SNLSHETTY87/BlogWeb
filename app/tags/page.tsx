@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getAllTags } from "@/lib/posts";
 
-export default function TagsIndexPage() {
-  const tags = getAllTags();
+export const revalidate = 60;
+
+export default async function TagsIndexPage() {
+  const tags = await getAllTags();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">

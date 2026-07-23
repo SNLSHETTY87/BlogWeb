@@ -15,6 +15,13 @@
       "when": 1784821424990,
       "tag": "0001_blushing_reavers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784823463261,
+      "tag": "0002_outgoing_hiroim",
+      "breakpoints": true
     }
   ]
 }

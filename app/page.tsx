@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getAllPosts } from "@/lib/posts";
 
-export default function HomePage() {
-  const posts = getAllPosts();
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const posts = await getAllPosts();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
@@ -18,7 +20,7 @@ export default function HomePage() {
               <h2 className="text-xl font-semibold group-hover:underline">{post.title}</h2>
             </Link>
             <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-              {post.date} · {post.readingTime}
+              {new Date(post.date).toLocaleDateString()} · {post.readingTime}
             </p>
             <p className="mt-2 text-black/80 dark:text-white/80">{post.excerpt}</p>
             <div className="mt-3 flex gap-2">

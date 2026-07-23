@@ -20,6 +20,11 @@ export default function Header() {
           <Link href="/tags" className="hover:underline">
             Tags
           </Link>
+          {session?.user?.isAdmin && (
+            <Link href="/admin/posts" className="hover:underline">
+              Write
+            </Link>
+          )}
           <ThemeToggle />
           {session?.user ? (
             <button onClick={() => signOut()} className="hover:underline">
