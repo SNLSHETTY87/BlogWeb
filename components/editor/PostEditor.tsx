@@ -5,7 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Bold,
   Italic,
@@ -16,6 +16,7 @@ import {
   Link2,
   ImagePlus,
   Music2,
+  AlertCircle,
 } from "lucide-react";
 import AudioEmbed from "./AudioEmbed";
 import { uploadFile } from "@/lib/uploadFile";
@@ -49,7 +50,13 @@ function ToolbarButton({
   );
 }
 
-function Toolbar({ editor }: { editor: Editor | null }) {
+function Toolbar({
+  editor,
+  onError,
+}: {
+  editor: Editor | null;
+  onError: (message: string) => void;
+}) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,8 +131,12 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           const file = e.target.files?.[0];
           e.target.value = "";
           if (!file) return;
-          const url = await uploadFile(file);
-          editor.chain().focus().setImage({ src: url }).run();
+          try {
+            const url = await uploadFile(file);
+            editor.chain().focus().setImage({ src: url }).run();
+          } catch (err) {
+            onError(err instanceof Error ? err.message : "Image upload failed");
+          }
         }}
       />
 
@@ -141,8 +152,12 @@ function Toolbar({ editor }: { editor: Editor | null }) {
           const file = e.target.files?.[0];
           e.target.value = "";
           if (!file) return;
-          const url = await uploadFile(file);
-          editor.chain().focus().setAudio(url).run();
+          try {
+            const url = await uploadFile(file);
+            editor.chain().focus().setAudio(url).run();
+          } catch (err) {
+            onError(err instanceof Error ? err.message : "Audio upload failed");
+          }
         }}
       />
     </div>
@@ -156,6 +171,8 @@ export default function PostEditor({
   initialHtml: string;
   onChange: (html: string) => void;
 }) {
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -178,11 +195,15 @@ export default function PostEditor({
         if (files.length === 0) return false;
         event.preventDefault();
         files.forEach(async (file) => {
-          const url = await uploadFile(file);
-          const { schema } = view.state;
-          const node = schema.nodes.image.create({ src: url });
-          const transaction = view.state.tr.replaceSelectionWith(node);
-          view.dispatch(transaction);
+          try {
+            const url = await uploadFile(file);
+            const { schema } = view.state;
+            const node = schema.nodes.image.create({ src: url });
+            const transaction = view.state.tr.replaceSelectionWith(node);
+            view.dispatch(transaction);
+          } catch (err) {
+            setUploadError(err instanceof Error ? err.message : "Image upload failed");
+          }
         });
         return true;
       },
@@ -193,11 +214,15 @@ export default function PostEditor({
         if (files.length === 0) return false;
         event.preventDefault();
         files.forEach(async (file) => {
-          const url = await uploadFile(file);
-          const { schema } = view.state;
-          const node = schema.nodes.image.create({ src: url });
-          const transaction = view.state.tr.replaceSelectionWith(node);
-          view.dispatch(transaction);
+          try {
+            const url = await uploadFile(file);
+            const { schema } = view.state;
+            const node = schema.nodes.image.create({ src: url });
+            const transaction = view.state.tr.replaceSelectionWith(node);
+            view.dispatch(transaction);
+          } catch (err) {
+            setUploadError(err instanceof Error ? err.message : "Image upload failed");
+          }
         });
         return true;
       },
@@ -216,7 +241,20 @@ export default function PostEditor({
 
   return (
     <div className="overflow-hidden rounded-xl border border-black/10 shadow-sm dark:border-white/10">
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} onError={setUploadError} />
+      {uploadError && (
+        <div className="flex items-center gap-2 border-b border-red-600/20 bg-red-600/5 px-4 py-2 text-sm text-red-700 dark:border-red-400/20 dark:text-red-400">
+          <AlertCircle size={14} className="shrink-0" />
+          <span className="flex-1">{uploadError}</span>
+          <button
+            type="button"
+            onClick={() => setUploadError(null)}
+            className="text-xs font-medium underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <EditorContent editor={editor} />
     </div>
   );

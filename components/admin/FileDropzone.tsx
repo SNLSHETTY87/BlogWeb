@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadCloud, X, Music2, ImageIcon } from "lucide-react";
+import { UploadCloud, X, Music2, ImageIcon, AlertCircle } from "lucide-react";
 import { uploadFile } from "@/lib/uploadFile";
 
 type FileDropzoneProps = {
@@ -17,13 +17,17 @@ export default function FileDropzone({ label, hint, accept, kind, value, onChang
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
     setUploading(true);
+    setError(null);
     try {
       const url = await uploadFile(file);
       onChange(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Try again.");
     } finally {
       setUploading(false);
     }
@@ -88,6 +92,13 @@ export default function FileDropzone({ label, hint, accept, kind, value, onChang
           </div>
           <UploadCloud size={16} className="ml-auto shrink-0 text-black/25 dark:text-white/25" />
         </button>
+      )}
+
+      {error && (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+          <AlertCircle size={12} />
+          {error}
+        </p>
       )}
 
       <input

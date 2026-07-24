@@ -37,9 +37,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# generated search index
-/public/pagefind
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
