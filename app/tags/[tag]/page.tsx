@@ -20,11 +20,15 @@ export default async function TagPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="text-2xl font-semibold">Tag: {tag}</h1>
-      <ul className="mt-8 flex flex-col gap-6">
+      <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Tag</p>
+      <h1 className="mt-1 font-serif text-3xl font-semibold tracking-tight">{tag}</h1>
+      <ul className="mt-10 flex flex-col gap-6">
         {posts.map((post) => (
           <li key={post.slug}>
-            <Link href={`/blog/${post.slug}`} className="text-lg font-medium hover:underline">
+            <Link
+              href={`/blog/${post.slug}`}
+              className="font-serif text-lg font-medium hover:text-amber-700 dark:hover:text-amber-400"
+            >
               {post.title}
             </Link>
             <p className="text-sm text-black/50 dark:text-white/50">

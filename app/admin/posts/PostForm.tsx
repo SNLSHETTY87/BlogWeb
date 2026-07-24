@@ -84,7 +84,7 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
             el.style.height = "auto";
             el.style.height = `${el.scrollHeight}px`;
           }}
-          className="w-full resize-none overflow-hidden bg-transparent text-3xl font-bold tracking-tight outline-none placeholder:text-black/25 md:text-4xl dark:placeholder:text-white/25"
+          className="w-full resize-none overflow-hidden bg-transparent font-serif text-3xl font-semibold tracking-tight outline-none placeholder:text-black/25 md:text-4xl dark:placeholder:text-white/25"
         />
         <textarea
           value={excerpt}

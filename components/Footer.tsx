@@ -3,11 +3,12 @@ import NewsletterForm from "./NewsletterForm";
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-black/10 dark:border-white/10">
-      <div className="mx-auto max-w-3xl px-4 py-10">
+      <div className="mx-auto max-w-3xl px-4 py-12">
         <NewsletterForm />
-        <p className="mt-8 text-xs text-black/50 dark:text-white/50">
-          © {new Date().getFullYear()} Simply Human Blog.
-        </p>
+        <div className="mt-10 flex items-center justify-between border-t border-black/10 pt-6 text-xs text-black/45 dark:border-white/10 dark:text-white/45">
+          <p>© {new Date().getFullYear()} Simply Human</p>
+          <p>Human psychology, explained — with science.</p>
+        </div>
       </div>
     </footer>
   );

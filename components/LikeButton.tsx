@@ -33,7 +33,11 @@ export default function LikeButton({ postSlug }: { postSlug: string }) {
   return (
     <button
       onClick={toggle}
-      className="flex items-center gap-2 rounded-full border border-black/10 px-4 py-1.5 text-sm hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+      className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-colors ${
+        liked
+          ? "border-amber-600/30 bg-amber-600/10 text-amber-800 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300"
+          : "border-black/10 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+      }`}
     >
       <span>{liked ? "❤️" : "🤍"}</span>
       <span>{count}</span>

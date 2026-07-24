@@ -45,8 +45,8 @@ export default function CommentSection({ postSlug }: { postSlug: string }) {
   }
 
   return (
-    <section className="mt-16">
-      <h2 className="text-lg font-semibold">Comments ({comments.length})</h2>
+    <section className="mt-16 border-t border-black/10 pt-10 dark:border-white/10">
+      <h2 className="font-serif text-lg font-semibold">Comments ({comments.length})</h2>
 
       {isLoggedIn ? (
         <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2">
@@ -55,7 +55,7 @@ export default function CommentSection({ postSlug }: { postSlug: string }) {
             onChange={(e) => setText(e.target.value)}
             placeholder="Share your thoughts..."
             rows={3}
-            className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+            className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
           />
           <button
             disabled={loading}
@@ -66,7 +66,7 @@ export default function CommentSection({ postSlug }: { postSlug: string }) {
         </form>
       ) : (
         <p className="mt-4 text-sm text-black/60 dark:text-white/60">
-          <a href="/login" className="underline">
+          <a href="/login" className="text-amber-700 underline dark:text-amber-400">
             Sign in
           </a>{" "}
           to leave a comment.

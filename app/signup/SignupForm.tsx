@@ -55,14 +55,14 @@ export default function SignupForm() {
         type="text"
         name="name"
         placeholder="Name (optional)"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
       />
       <input
         type="email"
         name="email"
         required
         placeholder="you@example.com"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
       />
       <input
         type="password"
@@ -70,7 +70,7 @@ export default function SignupForm() {
         required
         minLength={8}
         placeholder="Password (min 8 characters)"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
       />
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       <button

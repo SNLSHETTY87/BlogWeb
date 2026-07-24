@@ -24,7 +24,11 @@ export default function BackgroundAudioPlayer({ src }: { src: string }) {
         onClick={toggle}
         aria-label={playing ? "Turn off background music" : "Play background music"}
         aria-pressed={playing}
-        className="flex items-center gap-2 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-sm font-medium shadow-lg backdrop-blur hover:bg-white dark:border-white/10 dark:bg-black/90 dark:hover:bg-black"
+        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium shadow-lg backdrop-blur transition-colors ${
+          playing
+            ? "border-amber-600/30 bg-amber-600/90 text-white dark:border-amber-400/30 dark:bg-amber-400/90 dark:text-black"
+            : "border-black/10 bg-white/90 hover:bg-white dark:border-white/10 dark:bg-black/90 dark:hover:bg-black"
+        }`}
       >
         <span>{playing ? "🔊" : "🔈"}</span>
         <span>{playing ? "Music on" : "Play music"}</span>

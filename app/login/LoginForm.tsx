@@ -39,14 +39,14 @@ export default function LoginForm() {
         name="email"
         required
         placeholder="you@example.com"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
       />
       <input
         type="password"
         name="password"
         required
         placeholder="Password"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        className="rounded-lg border border-black/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-amber-600/50 dark:border-white/10"
       />
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       <button
