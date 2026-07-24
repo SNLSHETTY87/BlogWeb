@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import DOMPurify from "isomorphic-dompurify";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { posts } from "@/lib/db/schema";
+import { sanitizePostHtml } from "@/lib/sanitizeHtml";
 
 const bodySchema = z.object({
   title: z.string().min(1).max(200),
@@ -36,10 +36,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const data = parsed.data;
-  const cleanHtml = DOMPurify.sanitize(data.contentHtml, {
-    ADD_TAGS: ["audio"],
-    ADD_ATTR: ["controls", "src"],
-  });
+  const cleanHtml = sanitizePostHtml(data.contentHtml);
 
   const [row] = await db
     .update(posts)
