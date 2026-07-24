@@ -6,14 +6,15 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { posts } from "@/lib/db/schema";
 import { sanitizePostHtml } from "@/lib/sanitizeHtml";
+import { urlOrPath } from "@/lib/urlOrPath";
 
 const bodySchema = z.object({
   title: z.string().min(1).max(200),
   excerpt: z.string().max(500).optional().default(""),
   contentHtml: z.string().min(1),
   tags: z.array(z.string().min(1).max(40)).max(20).optional().default([]),
-  coverImage: z.string().url().optional().nullable(),
-  backgroundAudioUrl: z.string().url().optional().nullable(),
+  coverImage: urlOrPath.optional().nullable(),
+  backgroundAudioUrl: urlOrPath.optional().nullable(),
   published: z.boolean().optional().default(true),
 });
 
