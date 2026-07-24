@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { uploadFile } from "@/lib/uploadFile";
+import { AlertCircle } from "lucide-react";
+import FileDropzone from "@/components/admin/FileDropzone";
+import TagInput from "@/components/admin/TagInput";
+import Switch from "@/components/admin/Switch";
 
 const PostEditor = dynamic(() => import("@/components/editor/PostEditor"), { ssr: false });
 
@@ -22,7 +25,7 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
   const router = useRouter();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
-  const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [coverImage, setCoverImage] = useState<string | null>(initial?.coverImage ?? null);
   const [backgroundAudioUrl, setBackgroundAudioUrl] = useState<string | null>(
     initial?.backgroundAudioUrl ?? null
@@ -31,8 +34,6 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
   const [contentHtml, setContentHtml] = useState(initial?.contentHtml ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [coverUploading, setCoverUploading] = useState(false);
-  const [audioUploading, setAudioUploading] = useState(false);
 
   const isEdit = Boolean(initial?.id);
 
@@ -50,18 +51,7 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
     }
 
     setSaving(true);
-    const payload = {
-      title,
-      excerpt,
-      contentHtml,
-      tags: tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      coverImage,
-      backgroundAudioUrl,
-      published,
-    };
+    const payload = { title, excerpt, contentHtml, tags, coverImage, backgroundAudioUrl, published };
 
     const res = await fetch(isEdit ? `/api/posts/${initial!.id}` : "/api/posts", {
       method: isEdit ? "PUT" : "POST",
@@ -82,89 +72,79 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Post title"
-        className="rounded-lg border border-black/10 px-3 py-2 text-lg font-medium dark:border-white/10 dark:bg-transparent"
-      />
-
-      <textarea
-        value={excerpt}
-        onChange={(e) => setExcerpt(e.target.value)}
-        placeholder="Short excerpt shown on the home page"
-        rows={2}
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
-      />
-
-      <input
-        type="text"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        placeholder="Tags, comma separated (e.g. psychology, habits)"
-        className="rounded-lg border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
-      />
-
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8 pb-28">
       <div>
-        <label className="mb-1 block text-sm font-medium">Cover image (optional)</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            setCoverUploading(true);
-            const url = await uploadFile(file);
-            setCoverImage(url);
-            setCoverUploading(false);
+        <textarea
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Post title"
+          rows={1}
+          onInput={(e) => {
+            const el = e.currentTarget;
+            el.style.height = "auto";
+            el.style.height = `${el.scrollHeight}px`;
           }}
+          className="w-full resize-none overflow-hidden bg-transparent text-3xl font-bold tracking-tight outline-none placeholder:text-black/25 md:text-4xl dark:placeholder:text-white/25"
         />
-        {coverUploading && <p className="mt-1 text-xs">Uploading…</p>}
-        {coverImage && <p className="mt-1 break-all text-xs text-black/50 dark:text-white/50">{coverImage}</p>}
+        <textarea
+          value={excerpt}
+          onChange={(e) => setExcerpt(e.target.value)}
+          placeholder="One-line excerpt shown on the home page…"
+          rows={1}
+          className="mt-2 w-full resize-none bg-transparent text-base text-black/60 outline-none placeholder:text-black/30 dark:text-white/60 dark:placeholder:text-white/30"
+        />
+      </div>
+
+      <div className="flex flex-col gap-5 rounded-xl border border-black/10 bg-black/[0.015] p-5 dark:border-white/10 dark:bg-white/[0.02]">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-black/80 dark:text-white/80">Tags</label>
+          <TagInput tags={tags} onChange={setTags} />
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FileDropzone
+            label="Cover image"
+            hint="Shown on the home page card"
+            accept="image/*"
+            kind="image"
+            value={coverImage}
+            onChange={setCoverImage}
+          />
+          <FileDropzone
+            label="Background audio"
+            hint="Plays quietly while someone reads — they can turn it off"
+            accept="audio/*"
+            kind="audio"
+            value={backgroundAudioUrl}
+            onChange={setBackgroundAudioUrl}
+          />
+        </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">
-          Background audio (optional — plays quietly while someone reads, they can turn it off)
-        </label>
-        <input
-          type="file"
-          accept="audio/*"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            setAudioUploading(true);
-            const url = await uploadFile(file);
-            setBackgroundAudioUrl(url);
-            setAudioUploading(false);
-          }}
-        />
-        {audioUploading && <p className="mt-1 text-xs">Uploading…</p>}
-        {backgroundAudioUrl && (
-          <p className="mt-1 break-all text-xs text-black/50 dark:text-white/50">{backgroundAudioUrl}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium">Post body</label>
+        <label className="mb-2 block text-sm font-medium text-black/80 dark:text-white/80">Post body</label>
         <PostEditor initialHtml={contentHtml} onChange={setContentHtml} />
       </div>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
-        Published (visible to readers)
-      </label>
-
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-
-      <button
-        disabled={saving}
-        className="w-fit rounded-lg bg-black px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-black"
-      >
-        {saving ? "Saving…" : isEdit ? "Save changes" : "Publish post"}
-      </button>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0a]/90">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
+          <div className="flex items-center gap-4">
+            <Switch checked={published} onChange={setPublished} label={published ? "Published" : "Draft"} />
+            {error && (
+              <span className="flex items-center gap-1.5 text-sm text-red-600 dark:text-red-400">
+                <AlertCircle size={14} />
+                {error}
+              </span>
+            )}
+          </div>
+          <button
+            disabled={saving}
+            className="rounded-lg bg-black px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-black"
+          >
+            {saving ? "Saving…" : isEdit ? "Save changes" : "Publish post"}
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

@@ -5,9 +5,49 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import {
+  Bold,
+  Italic,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Link2,
+  ImagePlus,
+  Music2,
+} from "lucide-react";
 import AudioEmbed from "./AudioEmbed";
 import { uploadFile } from "@/lib/uploadFile";
+
+function ToolbarButton({
+  onClick,
+  active,
+  label,
+  children,
+}: {
+  onClick: () => void;
+  active?: boolean;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      aria-pressed={active}
+      className={`flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+        active
+          ? "bg-amber-600/15 text-amber-700 dark:bg-amber-400/15 dark:text-amber-400"
+          : "text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 
 function Toolbar({ editor }: { editor: Editor | null }) {
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -15,77 +55,66 @@ function Toolbar({ editor }: { editor: Editor | null }) {
 
   if (!editor) return null;
 
-  const btn = (active: boolean) =>
-    `rounded px-2 py-1 text-sm font-medium ${
-      active
-        ? "bg-black text-white dark:bg-white dark:text-black"
-        : "hover:bg-black/5 dark:hover:bg-white/10"
-    }`;
-
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-black/10 p-2 dark:border-white/10">
-      <button
-        type="button"
+    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 rounded-t-xl border-b border-black/10 bg-white/95 p-1.5 backdrop-blur dark:border-white/10 dark:bg-[#0a0a0a]/95">
+      <ToolbarButton
+        label="Bold"
+        active={editor.isActive("bold")}
         onClick={() => editor.chain().focus().toggleBold().run()}
-        className={btn(editor.isActive("bold"))}
       >
-        Bold
-      </button>
-      <button
-        type="button"
+        <Bold size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Italic"
+        active={editor.isActive("italic")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={btn(editor.isActive("italic"))}
       >
-        Italic
-      </button>
-      <button
-        type="button"
+        <Italic size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Heading 2"
+        active={editor.isActive("heading", { level: 2 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={btn(editor.isActive("heading", { level: 2 }))}
       >
-        H2
-      </button>
-      <button
-        type="button"
+        <Heading2 size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Heading 3"
+        active={editor.isActive("heading", { level: 3 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={btn(editor.isActive("heading", { level: 3 }))}
       >
-        H3
-      </button>
-      <button
-        type="button"
+        <Heading3 size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Bullet list"
+        active={editor.isActive("bulletList")}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={btn(editor.isActive("bulletList"))}
       >
-        • List
-      </button>
-      <button
-        type="button"
+        <List size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Numbered list"
+        active={editor.isActive("orderedList")}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={btn(editor.isActive("orderedList"))}
       >
-        1. List
-      </button>
-      <button
-        type="button"
+        <ListOrdered size={16} />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Link"
+        active={editor.isActive("link")}
         onClick={() => {
           const url = window.prompt("Link URL");
           if (url) editor.chain().focus().setLink({ href: url }).run();
         }}
-        className={btn(editor.isActive("link"))}
       >
-        Link
-      </button>
+        <Link2 size={16} />
+      </ToolbarButton>
 
       <div className="mx-1 h-5 w-px bg-black/10 dark:bg-white/10" />
 
-      <button
-        type="button"
-        onClick={() => imageInputRef.current?.click()}
-        className={btn(false)}
-      >
-        Image
-      </button>
+      <ToolbarButton label="Insert image" onClick={() => imageInputRef.current?.click()}>
+        <ImagePlus size={16} />
+      </ToolbarButton>
       <input
         ref={imageInputRef}
         type="file"
@@ -100,13 +129,9 @@ function Toolbar({ editor }: { editor: Editor | null }) {
         }}
       />
 
-      <button
-        type="button"
-        onClick={() => audioInputRef.current?.click()}
-        className={btn(false)}
-      >
-        Audio
-      </button>
+      <ToolbarButton label="Insert audio clip" onClick={() => audioInputRef.current?.click()}>
+        <Music2 size={16} />
+      </ToolbarButton>
       <input
         ref={audioInputRef}
         type="file"
@@ -143,7 +168,8 @@ export default function PostEditor({
     content: initialHtml,
     editorProps: {
       attributes: {
-        class: "prose prose-neutral max-w-none dark:prose-invert min-h-[300px] px-4 py-3 focus:outline-none",
+        class:
+          "prose prose-neutral max-w-none dark:prose-invert min-h-[400px] px-5 py-4 focus:outline-none",
       },
       handlePaste(view, event) {
         const files = Array.from(event.clipboardData?.files ?? []).filter((f) =>
@@ -189,7 +215,7 @@ export default function PostEditor({
   }, [editor, initialHtml]);
 
   return (
-    <div className="rounded-lg border border-black/10 dark:border-white/10">
+    <div className="overflow-hidden rounded-xl border border-black/10 shadow-sm dark:border-white/10">
       <Toolbar editor={editor} />
       <EditorContent editor={editor} />
     </div>
