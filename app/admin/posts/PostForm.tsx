@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AlertCircle } from "lucide-react";
 import FileDropzone from "@/components/admin/FileDropzone";
+import SampleAudioPicker from "@/components/admin/SampleAudioPicker";
 import TagInput from "@/components/admin/TagInput";
 import Switch from "@/components/admin/Switch";
 
@@ -110,14 +111,19 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
             value={coverImage}
             onChange={setCoverImage}
           />
-          <FileDropzone
-            label="Background audio"
-            hint="Plays quietly while someone reads — they can turn it off"
-            accept="audio/*"
-            kind="audio"
-            value={backgroundAudioUrl}
-            onChange={setBackgroundAudioUrl}
-          />
+          <div>
+            <FileDropzone
+              label="Background audio"
+              hint="Plays quietly while someone reads — they can turn it off"
+              accept="audio/*"
+              kind="audio"
+              value={backgroundAudioUrl}
+              onChange={setBackgroundAudioUrl}
+            />
+            {!backgroundAudioUrl && (
+              <SampleAudioPicker value={backgroundAudioUrl} onChange={setBackgroundAudioUrl} />
+            )}
+          </div>
         </div>
       </div>
 
