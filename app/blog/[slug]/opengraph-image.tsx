@@ -20,15 +20,19 @@ export default async function OpengraphImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-end",
           padding: "80px",
-          background: "linear-gradient(135deg, #0a0a0a, #1a1a1a)",
+          backgroundImage: post?.cover
+            ? `linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.2)), url(${post.cover})`
+            : "linear-gradient(135deg, #14110d, #221e19)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           color: "#ffffff",
         }}
       >
-        <div style={{ fontSize: 28, opacity: 0.7 }}>Simply Human Blog</div>
+        <div style={{ fontSize: 28, opacity: 0.7 }}>Simply Human</div>
         <div style={{ fontSize: 64, fontWeight: 700, marginTop: 24, lineHeight: 1.2 }}>
-          {post?.title ?? "Simply Human Blog"}
+          {post?.title ?? "Simply Human"}
         </div>
       </div>
     ),

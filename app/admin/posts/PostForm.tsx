@@ -105,7 +105,7 @@ export default function PostForm({ initial }: { initial?: PostFormValues }) {
         <div className="grid gap-5 sm:grid-cols-2">
           <FileDropzone
             label="Cover image"
-            hint="Shown on the home page card"
+            hint="Becomes the post's hero background with the title over it"
             accept="image/*"
             kind="image"
             value={coverImage}
